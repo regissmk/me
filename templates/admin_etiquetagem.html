@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Etiquetar Fotos do Evento: {{ evento.nome }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            color: #344563;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #0F3A7D;
+            margin-bottom: 10px;
+        }
+        h2 {
+            color: #0F3A7D;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 10px;
+            margin-top: 30px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #0F3A7D;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .info-box {
+            background-color: #eef2f7;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #d0d8e0;
+        }
+        .info-box p {
+            margin: 5px 0;
+        }
+        .tagging-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr; /* Painel esquerdo menor, direito maior */
+            gap: 30px;
+            min-height: 70vh; /* Altura mínima para os painéis */
+        }
+        .panel {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            background-color: #fdfdfd;
+            overflow-y: auto; /* Scroll para conteúdo */
+        }
+        .panel-left {
+            max-height: 70vh;
+        }
+        .panel-right {
+            max-height: 70vh;
+        }
+        .turma-section {
+            margin-bottom: 20px;
+            border-bottom: 1px dashed #e0e0e0;
+            padding-bottom: 15px;
+        }
+        .turma-section:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .aluno-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+        }
+        .aluno-item:hover {
+            background-color: #eef2f7;
+        }
+        .aluno-item.selected {
+            background-color: #d0e0f0;
+            border: 1px solid #0F3A7D;
+        }
+        .aluno-item input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .aluno-item span {
+            font-weight: bold;
+        }
+        .aluno-item small {
+            color: #666;
+            margin-left: 10px;
+        }
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .photo-item {
+            position: relative;
+            cursor: pointer;
+            border: 2px solid transparent;
+            border-radius: 5px;
+            overflow: hidden;
+            transition: border-color 0.2s ease;
+        }
+        .photo-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            display: block;
+        }
+        .photo-item.selected {
+            border-color: #0F3A7D;
+        }
+        .photo-item input[type="checkbox"] {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            z-index: 10;
+            width: 20px;
+            height: 20px;
+        }
+        .tagging-actions {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        button.primary {
+            background-color: #0F3A7D;
+            color: #fff;
+        }
+        button.primary:hover {
+            background-color: #0A2B5C;
+        }
+        button.secondary {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+        button.secondary:hover {
+            background-color: #d0d0d0;
+        }
+        .error-message, .success-message {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .error-message {
+            background-color: #ffe0e0;
+            color: #FF4C8D;
+            border: 1px solid #FF4C8D;
+        }
+        .success-message {
+            background-color: #e0ffe0;
+            color: #36B37E;
+            border: 1px solid #36B37E;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Etiquetar Fotos do Evento: {{ evento.nome }}</h1>
+        <div class="info-box">
+            <p><strong>Contrato:</strong> {{ evento.contrato.nome }}</p>
+            <p><strong>Data do Evento:</strong> {{ evento.data.strftime('%d/%m/%Y') }}</p>
+            <p><strong>ID do Evento:</strong> {{ evento.id }}</p>
+        </div>
+
+        <div class="error-message hidden" id="globalErrorMessage"></div>
+        <div class="success-message hidden" id="globalSuccessMessage"></div>
+
+        <div class="tagging-grid">
+            <div class="panel panel-left">
+                <h2>Alunos do Evento</h2>
+                <div id="alunosList">
+                    {% for turma in turmas %}
+                        <div class="turma-section">
+                            <h3>Turma: {{ turma.nome }}</h3>
+                            {% for aluno in turma.alunos_na_turma %}
+                                <div class="aluno-item" data-aluno-id="{{ aluno.id }}">
+                                    <input type="checkbox" class="aluno-checkbox" value="{{ aluno.id }}">
+                                    <span>{{ aluno.nome }}</span>
+                                    <small>(CPF: {{ aluno.pai.cpf if aluno.pai else 'N/A' }})</small>
+                                </div>
+                            {% else %}
+                                <p>Nenhum aluno nesta turma.</p>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p>Nenhuma turma cadastrada para este evento.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="panel panel-right">
+                <h2>Fotos do Evento</h2>
+                <div class="photo-grid" id="photoGallery">
+                    {% for foto in fotos %}
+                        <div class="photo-item" data-foto-id="{{ foto.id }}">
+                            <input type="checkbox" class="photo-checkbox" value="{{ foto.id }}"
+                                {% for aluno_id in foto.etiquetados_ids %}
+                                    data-initial-tagged-aluno="{{ aluno_id }}"
+                                {% endfor %}
+                            >
+                            <img src="{{ foto.url }}" alt="Foto do Evento" loading="lazy">
+                        </div>
+                    {% else %}
+                        <p>Nenhuma foto enviada para este evento ainda.</p>
+                    {% endfor %}
+                </div>
+                <div class="tagging-actions">
+                    <button type="button" class="secondary" id="clearSelectionBtn">Limpar Seleção</button>
+                    <button type="button" class="primary" id="tagPhotosBtn">Etiquetar Fotos Selecionadas</button>
+                    <button type="button" class="secondary" id="untagPhotosBtn">Desetiquetar Fotos Selecionadas</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const eventoId = {{ evento.id }};
+        const globalErrorMessage = document.getElementById('globalErrorMessage');
+        const globalSuccessMessage = document.getElementById('globalSuccessMessage');
+
+        const alunoCheckboxes = document.querySelectorAll('.aluno-checkbox');
+        const photoCheckboxes = document.querySelectorAll('.photo-checkbox');
+        const tagPhotosBtn = document.getElementById('tagPhotosBtn');
+        const untagPhotosBtn = document.getElementById('untagPhotosBtn');
+        const clearSelectionBtn = document.getElementById('clearSelectionBtn');
+
+        function showMessage(element, message, isError = false) {
+            element.textContent = message;
+            element.classList.remove('hidden');
+            if (isError) {
+                element.classList.add('error-message');
+                element.classList.remove('success-message');
+            } else {
+                element.classList.add('success-message');
+                element.classList.remove('error-message');
+            }
+            setTimeout(() => {
+                element.classList.add('hidden');
+            }, 5000);
+        }
+
+        function getSelectedAlunoIds() {
+            const selectedIds = [];
+            alunoCheckboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    selectedIds.push(parseInt(checkbox.value));
+                }
+            });
+            return selectedIds;
+        }
+
+        function getSelectedPhotoIds() {
+            const selectedIds = [];
+            photoCheckboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    selectedIds.push(parseInt(checkbox.value));
+                }
+            });
+            return selectedIds;
+        }
+
+        function updateAlunoItemStyle() {
+            alunoCheckboxes.forEach(checkbox => {
+                const item = checkbox.closest('.aluno-item');
+                if (checkbox.checked) {
+                    item.classList.add('selected');
+                } else {
+                    item.classList.remove('selected');
+                }
+            });
+        }
+
+        function updatePhotoItemStyle() {
+            photoCheckboxes.forEach(checkbox => {
+                const item = checkbox.closest('.photo-item');
+                if (checkbox.checked) {
+                    item.classList.add('selected');
+                } else {
+                    item.classList.remove('selected');
+                }
+            });
+        }
+
+        alunoCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateAlunoItemStyle);
+            const item = checkbox.closest('.aluno-item');
+            item.addEventListener('click', (e) => {
+                if (e.target !== checkbox) {
+                    checkbox.checked = !checkbox.checked;
+                    updateAlunoItemStyle();
+                }
+            });
+        });
+
+        photoCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updatePhotoItemStyle);
+            const item = checkbox.closest('.photo-item');
+            item.addEventListener('click', (e) => {
+                if (e.target !== checkbox) {
+                    checkbox.checked = !checkbox.checked;
+                    updatePhotoItemStyle();
+                }
+            });
+        });
+
+        clearSelectionBtn.addEventListener('click', () => {
+            alunoCheckboxes.forEach(checkbox => { checkbox.checked = false; });
+            photoCheckboxes.forEach(checkbox => { checkbox.checked = false; });
+            updateAlunoItemStyle();
+            updatePhotoItemStyle();
+        });
+
+        async function sendTaggingRequest(action) {
+            const selectedAlunoIds = getSelectedAlunoIds();
+            const selectedPhotoIds = getSelectedPhotoIds();
+
+            if (selectedAlunoIds.length === 0) {
+                showMessage(globalErrorMessage, 'Selecione pelo menos um aluno.', true);
+                return;
+            }
+            if (selectedPhotoIds.length === 0) {
+                showMessage(globalErrorMessage, 'Selecione pelo menos uma foto.', true);
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/fotos/etiquetar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        foto_ids: selectedPhotoIds,
+                        aluno_ids: selectedAlunoIds,
+                        action: action
+                    })
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    showMessage(globalSuccessMessage, result.message);
+                    // Optionally, refresh the page or update UI to reflect changes
+                    location.reload(); 
+                } else {
+                    showMessage(globalErrorMessage, result.error || `Erro ao ${action === 'add' ? 'etiquetar' : 'desetiquetar'} fotos.`, true);
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                showMessage(globalErrorMessage, 'Erro de rede ao enviar requisição de etiquetagem.', true);
+            }
+        }
+
+        tagPhotosBtn.addEventListener('click', () => sendTaggingRequest('add'));
+        untagPhotosBtn.addEventListener('click', () => sendTaggingRequest('remove'));
+
+        // Initial style update on load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateAlunoItemStyle();
+            updatePhotoItemStyle();
+        });
+    </script>
+</body>
+</html>

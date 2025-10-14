@@ -1,0 +1,95 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nunito:wght@400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+ 
+@layer base {
+  :root {
+    --background: 220 20% 97%; /* Cinza Claro: #F4F5F7 */
+    --foreground: 222 22% 20%; /* Cinza Escuro: #344563 */
+
+    --card: 0 0% 100%; /* Branco: #FFFFFF */
+    --card-foreground: 222 22% 20%; /* Cinza Escuro */
+ 
+    --popover: 0 0% 100%; /* Branco */
+    --popover-foreground: 222 22% 20%; /* Cinza Escuro */
+ 
+    --primary: 220 80% 30%; /* Deep Blue: #0F3A7D */
+    --primary-foreground: 0 0% 100%; /* Branco */
+ 
+    --secondary: 40 100% 50%; /* Gold: #FFB300 */
+    --secondary-foreground: 222 22% 20%; /* Cinza Escuro */
+ 
+    --muted: 220 13% 91%; /* Cinza Médio: #DFE1E6 */
+    --muted-foreground: 220 9% 46%;
+ 
+    --accent: 220 14% 94%; /* Variação de Cinza Médio/Claro */
+    --accent-foreground: 222 22% 20%; /* Cinza Escuro */
+ 
+    --destructive: 0 80% 60%; /* Rosa/Fúcsia: #FF4C8D */
+    --destructive-foreground: 0 0% 100%; /* Branco */
+
+    --success: 153 52% 46%; /* Verde Sucesso: #36B37E */
+    --warning: 39 100% 50%; /* Amarelo Atenção: #FFAB00 */
+    --info: 187 100% 45%; /* Turquesa: #00C7E5 */
+
+    --border: 220 13% 85%; /* Variação de Cinza Médio */
+    --input: 220 13% 85%;
+    --ring: 220 80% 30%; /* Deep Blue */
+ 
+    --radius: 0.75rem;
+  }
+ 
+  .dark {
+    --background: 222 22% 20%; /* Cinza Escuro */
+    --foreground: 220 20% 97%; /* Cinza Claro */
+
+    --card: 222 22% 23%;
+    --card-foreground: 220 20% 97%;
+ 
+    --popover: 222 22% 23%;
+    --popover-foreground: 220 20% 97%;
+ 
+    --primary: 220 80% 30%; /* Deep Blue */
+    --primary-foreground: 0 0% 100%;
+ 
+    --secondary: 40 100% 50%; /* Gold */
+    --secondary-foreground: 222 22% 20%;
+ 
+    --muted: 222 22% 28%;
+    --muted-foreground: 220 9% 55%;
+    --accent: 222 22% 28%;
+    --accent-foreground: 220 20% 97%;
+ 
+    --destructive: 0 80% 70%; /* Lighter Pink/Fuchsia */
+    --destructive-foreground: 222 22% 20%;
+
+    --border: 222 22% 35%;
+    --input: 222 22% 35%;
+    --ring: 220 80% 30%;
+  }
+}
+ 
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-gradient-to-br from-indigo-50 via-white to-purple-50 text-foreground; /* Global gradient background */
+    font-family: 'Inter', sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight;
+  }
+}
+
+.ql-toolbar {
+    @apply rounded-t-lg border-input bg-background;
+}
+.ql-container {
+    @apply rounded-b-lg border-input;
+}
+.ql-editor {
+    @apply min-h-[150px];
+}

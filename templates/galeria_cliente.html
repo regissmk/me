@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Galeria: {{ evento.nome }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            color: #344563;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #0F3A7D;
+            margin-bottom: 10px;
+        }
+        h2 {
+            color: #0F3A7D;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 10px;
+            margin-top: 30px;
+            margin-bottom: 20px;
+        }
+        .info-box {
+            background-color: #eef2f7;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #d0d8e0;
+        }
+        .info-box p {
+            margin: 5px 0;
+        }
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .photo-item {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+        }
+        .photo-item:hover {
+            transform: translateY(-5px);
+        }
+        .photo-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+        .photo-item-info {
+            padding: 10px;
+            font-size: 0.9em;
+            color: #555;
+        }
+        .photo-item-info strong {
+            color: #344563;
+        }
+        .no-photos-message {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Minha Galeria: {{ evento.nome }}</h1>
+        <div class="info-box">
+            <p>Bem-vindo(a) à sua galeria privada do evento <strong>{{ evento.nome }}</strong>.</p>
+            <p>Aqui você encontrará as fotos dos seus filhos:</p>
+            <ul>
+                {% for aluno in alunos_do_usuario %}
+                    <li>- {{ aluno.nome }} (CPF do responsável: {{ aluno.pai.cpf if aluno.pai else 'N/A' }})</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <h2>Suas Fotos</h2>
+        {% if fotos %}
+            <div class="photo-grid">
+                {% for foto in fotos %}
+                    <div class="photo-item">
+                        <img src="{{ foto.url }}" alt="Foto do Evento" loading="lazy">
+                        <div class="photo-item-info">
+                            <strong>Foto ID:</strong> {{ foto.id }}<br>
+                            <!-- Opcional: Mostrar para quais filhos a foto está etiquetada -->
+                            {% if foto.alunos_etiquetados %}
+                                <strong>Etiquetada para:</strong>
+                                {% for aluno in foto.alunos_etiquetados %}
+                                    {% if aluno.id in [a.id for a in alunos_do_usuario] %}
+                                        {{ aluno.nome }}{% if not loop.last %}, {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="no-photos-message">Nenhuma foto encontrada para os seus filhos neste evento ainda.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
